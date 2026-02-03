@@ -2,6 +2,10 @@
 
 **Cognito Hub** is a cutting-edge **Autonomous Multi-Agent AI System** that transforms how deep research and strategic analysis are performed. By orchestrating a team of specialized agents, it can crawl the web, validate findings against a knowledge base, and provide future-proof strategic recommendations on any topic.
 
+### 🌐 Live Links
+- **Live Demo (Frontend):** [https://multi-agent-dun.vercel.app/](https://multi-agent-dun.vercel.app/)
+- **Live API (Backend):** [https://multi-agent-azqa.onrender.com](https://multi-agent-azqa.onrender.com)
+
 
 ## 🚀 The Multi-Agent Architecture
 
