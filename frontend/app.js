@@ -68,7 +68,7 @@ function renderResults(data) {
             entry.innerHTML = `<span class="agent-name">${t.agent}</span> ${t.thought}`;
             thoughtStream.appendChild(entry);
             thoughtStream.scrollTop = thoughtStream.scrollHeight;
-            
+
             // Highlight active agent
             Object.values(agentBadges).forEach(b => b?.classList.remove('active'));
             if (agentBadges[t.agent]) agentBadges[t.agent].classList.add('active');
@@ -109,4 +109,61 @@ function renderResults(data) {
         stockHealth.innerText = atRisk > 0 ? 'AT RISK' : 'HEALTHY';
         stockHealth.style.color = atRisk > 0 ? 'var(--danger-color)' : 'var(--success-color)';
     }, (data.thoughts.length + 1) * 1000);
+}
+
+/* AI Co-pilot Chat Logic */
+const chatToggle = document.getElementById('chat-toggle');
+const chatWindow = document.getElementById('chat-window');
+const closeChat = document.getElementById('close-chat');
+const sendChat = document.getElementById('send-chat');
+const chatInput = document.getElementById('chat-input');
+const chatMessages = document.getElementById('chat-messages');
+
+chatToggle.addEventListener('click', () => {
+    chatWindow.classList.toggle('hidden');
+    if (!chatWindow.classList.contains('hidden')) {
+        chatInput.focus();
+    }
+});
+
+closeChat.addEventListener('click', () => {
+    chatWindow.classList.add('hidden');
+});
+
+sendChat.addEventListener('click', sendMessage);
+chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+});
+
+async function sendMessage() {
+    const msg = chatInput.value.trim();
+    if (!msg) return;
+
+    // Render user message
+    appendMessage(msg, 'user-msg');
+    chatInput.value = '';
+
+    try {
+        const response = await fetch(`${API_URL}/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: msg })
+        });
+
+        if (!response.ok) throw new Error('Chat failed');
+
+        const data = await response.json();
+        appendMessage(data.response, 'ai-msg');
+    } catch (error) {
+        console.error(error);
+        appendMessage(`Error: ${error.message}`, 'ai-msg');
+    }
+}
+
+function appendMessage(text, className) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = className;
+    msgDiv.innerText = text;
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 }

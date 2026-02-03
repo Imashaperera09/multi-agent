@@ -18,6 +18,9 @@ app.add_middleware(
 class RunInput(BaseModel):
     query: str
 
+class ChatMessage(BaseModel):
+    message: str
+
 @app.get("/")
 async def root():
     return {"message": "Supply Chain Multi-Agent AI API is running"}
@@ -41,6 +44,32 @@ async def analyze_supply_chain(data: RunInput):
         return final_state
     except Exception as e:
         print(f"Error running graph: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/chat")
+async def chat_with_copilot(data: ChatMessage):
+    """Allows users to chat with the Supply Chain Co-pilot."""
+    try:
+        from .tools import get_inventory_status
+        from langchain_groq import ChatGroq
+        import os
+        
+        inventory = get_inventory_status()
+        llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.7)
+        
+        prompt = f"""
+        You are the Supply Chain AI Co-pilot. You help users understand global risks and their inventory status.
+        Current Inventory Status: {inventory}
+        
+        User Question: {data.message}
+        
+        Provide a helpful, professional response in a concise manner. If the user asks about a specific risk, relate it to the inventory if possible.
+        """
+        
+        response = llm.invoke(prompt)
+        return {"response": response.content}
+    except Exception as e:
+        print(f"Error in chat: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":

@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mission Control | Supply Chain Intelligence</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <div class="background-overlay"></div>
     <div class="container">
@@ -27,7 +31,7 @@
                     <h2>COMMAND CENTER</h2>
                     <p>Trigger autonomous global risk assessment and inventory optimization.</p>
                     <button id="analyze-btn" class="glow-btn">INITIALIZE ANALYSIS</button>
-                    
+
                     <div id="thinking-process" class="hidden">
                         <h3>AGENT REASONING</h3>
                         <div id="thought-stream">
@@ -74,7 +78,29 @@
                 <div class="agent-badge" id="logistics-badge">OPTIMIZER</div>
             </div>
         </footer>
+
+        <!-- AI Co-pilot Chat -->
+        <div id="chat-widget">
+            <button id="chat-toggle" class="chat-btn">
+                <span class="chat-icon">💬</span>
+                <span class="chat-label">CO-PILOT</span>
+            </button>
+            <div id="chat-window" class="glass hidden">
+                <div class="chat-header">
+                    <h3>AI CO-PILOT</h3>
+                    <button id="close-chat">×</button>
+                </div>
+                <div id="chat-messages" class="scroll-area">
+                    <div class="ai-msg">Hello! I am your Supply Chain Co-pilot. How can I help you today?</div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Ask about risks or inventory...">
+                    <button id="send-chat">SEND</button>
+                </div>
+            </div>
+        </div>
     </div>
     <script type="module" src="/app.js"></script>
 </body>
+
 </html>
