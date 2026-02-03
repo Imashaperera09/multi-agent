@@ -39,5 +39,5 @@ frontend/
    ```
 3. **Access**: Open [http://localhost:5173/](http://localhost:5173/) in your browser.
 
----
-*Created with ❤️ for the future of research.*
+
+
