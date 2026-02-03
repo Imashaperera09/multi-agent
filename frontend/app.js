@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000';
+const API_URL = 'https://multi-agent-azqa.onrender.com';
 
 const analyzeBtn = document.getElementById('analyze-btn');
 const researchInput = document.getElementById('research-query');

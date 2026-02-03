@@ -5,7 +5,7 @@ from typing import List, Optional
 from .agents import app_graph
 from .state import ResearchState
 
-app = FastAPI(title="Nexus AI: Global Research & Strategy Engine")
+app = FastAPI(title="Cognito Hub: Strategic Research Engine")
 
 # Enable CORS for frontend
 app.add_middleware(
