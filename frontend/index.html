@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission Control | Supply Chain Intelligence</title>
+    <title>Nexus AI | Global Research Hub</title>
     <link rel="stylesheet" href="style.css">
     <link
         href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap"
@@ -17,10 +17,10 @@
         <header>
             <div class="logo">
                 <span class="pulse"></span>
-                <h1>SUPPLY CHAIN <span class="accent">INTELLIGENCE</span></h1>
+                <h1>NEXUS <span class="accent">AI</span></h1>
             </div>
             <div class="system-status">
-                <span id="status-text">SYSTEM READY</span>
+                <span id="status-text">DEEP RESEARCH ACTIVE</span>
                 <span class="status-indicator"></span>
             </div>
         </header>
@@ -28,9 +28,10 @@
         <main>
             <section class="control-panel">
                 <div class="card glass">
-                    <h2>COMMAND CENTER</h2>
-                    <p>Trigger autonomous global risk assessment and inventory optimization.</p>
-                    <button id="analyze-btn" class="glow-btn">INITIALIZE ANALYSIS</button>
+                    <h2>INTEL CENTER</h2>
+                    <p>Orchestrate autonomous multi-agent research and strategic analysis.</p>
+                    <input type="text" id="research-query" placeholder="Enter research topic..." class="glass-input">
+                    <button id="analyze-btn" class="glow-btn">INITIALIZE RESEARCH</button>
 
                     <div id="thinking-process" class="hidden">
                         <h3>AGENT REASONING</h3>
@@ -42,11 +43,11 @@
 
                 <div class="stats-grid">
                     <div class="card glass small">
-                        <h3>ACTIVE RISKS</h3>
+                        <h3>FINDINGS</h3>
                         <div id="risk-count" class="big-number">0</div>
                     </div>
                     <div class="card glass small">
-                        <h3>STOCK HEALTH</h3>
+                        <h3>KNOWLEDGE</h3>
                         <div id="stock-health" class="big-number">--</div>
                     </div>
                 </div>
@@ -54,16 +55,16 @@
 
             <section class="results-panel">
                 <div class="card glass large">
-                    <h2>DISRUPTION REPORTS</h2>
+                    <h2>RESEARCH FINDINGS</h2>
                     <div id="disruption-list" class="scroll-area">
-                        <p class="placeholder">Awaiting system initialization...</p>
+                        <p class="placeholder">Awaiting research query...</p>
                     </div>
                 </div>
 
                 <div class="card glass large">
-                    <h2>MITIGATION STRATEGIES</h2>
+                    <h2>STRATEGIC INSIGHTS</h2>
                     <div id="mitigation-list" class="scroll-area">
-                        <p class="placeholder">Strategy generation pending risk analysis...</p>
+                        <p class="placeholder">Insights pending research analysis...</p>
                     </div>
                 </div>
             </section>
@@ -71,11 +72,11 @@
 
         <footer>
             <div class="agent-handoff">
-                <div class="agent-badge" id="risk-badge">SENTINEL</div>
+                <div class="agent-badge" id="risk-badge">SCOUT</div>
                 <div class="connector"></div>
                 <div class="agent-badge" id="inventory-badge">ANALYST</div>
                 <div class="connector"></div>
-                <div class="agent-badge" id="logistics-badge">OPTIMIZER</div>
+                <div class="agent-badge" id="logistics-badge">STRATEGIST</div>
             </div>
         </footer>
 
@@ -83,7 +84,7 @@
         <div id="chat-widget">
             <button id="chat-toggle" class="chat-btn">
                 <span class="chat-icon">💬</span>
-                <span class="chat-label">CO-PILOT</span>
+                <span class="chat-label">RESEARCH CO-PILOT</span>
             </button>
             <div id="chat-window" class="glass hidden">
                 <div class="chat-header">
@@ -91,10 +92,10 @@
                     <button id="close-chat">×</button>
                 </div>
                 <div id="chat-messages" class="scroll-area">
-                    <div class="ai-msg">Hello! I am your Supply Chain Co-pilot. How can I help you today?</div>
+                    <div class="ai-msg">Hello! I am your Research Co-pilot. What should we investigate today?</div>
                 </div>
                 <div class="chat-input-area">
-                    <input type="text" id="chat-input" placeholder="Ask about risks or inventory...">
+                    <input type="text" id="chat-input" placeholder="Ask about research or topics...">
                     <button id="send-chat">SEND</button>
                 </div>
             </div>

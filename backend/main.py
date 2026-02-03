@@ -3,9 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 from .agents import app_graph
-from .state import SupplyChainState
+from .state import ResearchState
 
-app = FastAPI(title="Supply Chain Multi-Agent Intelligence API")
+app = FastAPI(title="Nexus AI: Global Research & Strategy Engine")
 
 # Enable CORS for frontend
 app.add_middleware(
@@ -23,20 +23,21 @@ class ChatMessage(BaseModel):
 
 @app.get("/")
 async def root():
-    return {"message": "Supply Chain Multi-Agent AI API is running"}
+    return {"message": "Nexus AI Research Hub is running"}
 
 @app.post("/analyze")
-async def analyze_supply_chain(data: RunInput):
-    """Triggers the LangGraph workflow to analyze supply chain risks."""
+async def analyze_topic(data: RunInput):
+    """Triggers the LangGraph workflow to perform deep research."""
     try:
         # Initialize state
         initial_state = {
+            "query": data.query,
             "thoughts": [],
-            "disruptions": [],
-            "inventory": [],
-            "mitigation_plan": [],
+            "findings": [],
+            "knowledge_hub": [],
+            "strategies": [],
             "current_agent": "system",
-            "next_step": "risk_sentinel"
+            "next_step": "research_scout"
         }
         
         # Run the graph
@@ -48,22 +49,21 @@ async def analyze_supply_chain(data: RunInput):
 
 @app.post("/chat")
 async def chat_with_copilot(data: ChatMessage):
-    """Allows users to chat with the Supply Chain Co-pilot."""
+    """Allows users to chat with the Research Co-pilot."""
     try:
-        from .tools import get_inventory_status
+        from .tools import get_knowledge_context
         from langchain_groq import ChatGroq
-        import os
         
-        inventory = get_inventory_status()
+        context = get_knowledge_context()
         llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.7)
         
         prompt = f"""
-        You are the Supply Chain AI Co-pilot. You help users understand global risks and their inventory status.
-        Current Inventory Status: {inventory}
+        You are the Nexus AI Research Co-pilot. You help users understand global trends.
+        Current Knowledge Context: {context}
         
         User Question: {data.message}
         
-        Provide a helpful, professional response in a concise manner. If the user asks about a specific risk, relate it to the inventory if possible.
+        Provide a helpful, professional response in a concise manner.
         """
         
         response = llm.invoke(prompt)

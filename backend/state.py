@@ -6,37 +6,38 @@ class AgentThought(TypedDict):
     thought: str
     timestamp: str
 
-class Disruption(TypedDict):
+class ResearchFinding(TypedDict):
     id: str
-    type: str  # e.g., "Natural Disaster", "Port Strike", "Geopolitical"
-    location: str
-    severity: str # High, Medium, Low
+    category: str  # e.g., "Technology", "Geopolitical", "Science"
+    title: str
     description: str
     source: str
 
-class InventoryStatus(TypedDict):
-    product: str
-    stock_level: int
-    reorder_point: int
-    status: str # OK, At Risk, Out of Stock
+class KnowledgeTopic(TypedDict):
+    topic: str
+    depth_score: int # 0-100
+    status: str # Under-analyzed, Comprehensive, Needs Update
 
-class MitigationStep(TypedDict):
-    action: str
-    priority: str
+class StrategicRecommendation(TypedDict):
+    recommendation: str
     impact: str
+    confidence: str
 
-class SupplyChainState(TypedDict):
+class ResearchState(TypedDict):
     # The history of agent reasoning
     thoughts: Annotated[List[AgentThought], operator.add]
     
-    # Extracted risk data
-    disruptions: List[Disruption]
+    # Extracted findings
+    findings: List[ResearchFinding]
     
-    # Inventory health
-    inventory: List[InventoryStatus]
+    # Existing knowledge context
+    knowledge_hub: List[KnowledgeTopic]
     
-    # Final recommendations
-    mitigation_plan: List[MitigationStep]
+    # Final strategies
+    strategies: List[StrategicRecommendation]
+    
+    # The user's research query
+    query: str
     
     # Current focus/status
     current_agent: str

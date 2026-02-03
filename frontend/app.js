@@ -1,35 +1,42 @@
 const API_URL = 'http://localhost:8000';
 
 const analyzeBtn = document.getElementById('analyze-btn');
+const researchInput = document.getElementById('research-query');
 const statusText = document.getElementById('status-text');
 const thinkingProcess = document.getElementById('thinking-process');
 const thoughtStream = document.getElementById('thought-stream');
-const riskCount = document.getElementById('risk-count');
-const stockHealth = document.getElementById('stock-health');
-const disruptionList = document.getElementById('disruption-list');
-const mitigationList = document.getElementById('mitigation-list');
+const findingsCount = document.getElementById('risk-count');
+const knowledgeStatus = document.getElementById('stock-health');
+const findingsList = document.getElementById('disruption-list');
+const strategyList = document.getElementById('mitigation-list');
 
 const agentBadges = {
-    'Risk Sentinel': document.getElementById('risk-badge'),
-    'Inventory Analyst': document.getElementById('inventory-badge'),
-    'Logistics Optimizer': document.getElementById('logistics-badge'),
+    'Research Scout': document.getElementById('risk-badge'),
+    'Critical Analyst': document.getElementById('inventory-badge'),
+    'Strategy Advisor': document.getElementById('logistics-badge'),
     'system': null
 };
 
 analyzeBtn.addEventListener('click', async () => {
+    const query = researchInput.value.trim();
+    if (!query) {
+        alert("Please enter a research topic.");
+        return;
+    }
+
     try {
         resetUI();
-        setSystemStatus('ANALYZING...', 'var(--accent-color)');
+        setSystemStatus('RESEARCHING...', 'var(--accent-color)');
         analyzeBtn.disabled = true;
         thinkingProcess.classList.remove('hidden');
 
         const response = await fetch(`${API_URL}/analyze`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: 'global supply chain risks' })
+            body: JSON.stringify({ query: query })
         });
 
-        if (!response.ok) throw new Error('Analysis failed');
+        if (!response.ok) throw new Error('Research failed');
 
         const data = await response.json();
         renderResults(data);
@@ -45,10 +52,10 @@ analyzeBtn.addEventListener('click', async () => {
 
 function resetUI() {
     thoughtStream.innerHTML = '';
-    disruptionList.innerHTML = '<p class="placeholder">Analyzing...</p>';
-    mitigationList.innerHTML = '<p class="placeholder">Analyzing...</p>';
-    riskCount.innerText = '0';
-    stockHealth.innerText = '--';
+    findingsList.innerHTML = '<p class="placeholder">Searching...</p>';
+    strategyList.innerHTML = '<p class="placeholder">Analyzing...</p>';
+    findingsCount.innerText = '0';
+    knowledgeStatus.innerText = '--';
     Object.values(agentBadges).forEach(badge => badge?.classList.remove('active'));
 }
 
@@ -75,39 +82,42 @@ function renderResults(data) {
         }, index * 1000);
     });
 
-    // Render Disruptions
+    // Render Findings
     setTimeout(() => {
-        disruptionList.innerHTML = '';
-        data.disruptions.forEach(d => {
+        findingsList.innerHTML = '';
+        if (data.findings.length === 0) {
+            findingsList.innerHTML = '<p class="placeholder">No specific findings found for this topic.</p>';
+        }
+        data.findings.forEach(f => {
             const item = document.createElement('div');
-            item.className = 'disruption-item';
+            item.className = 'disruption-item'; // Keep class for styling
             item.innerHTML = `
-                <h4>${d.type}: ${d.location} <span class="badge severity-${d.severity.toLowerCase()}">${d.severity}</span></h4>
-                <p>${d.description}</p>
-                <small style="color: #4a5568">Source: ${d.source}</small>
+                <h4>${f.category}: ${f.title}</h4>
+                <p>${f.description}</p>
+                <small style="color: #4a5568">Source: ${f.source}</small>
             `;
-            disruptionList.appendChild(item);
+            findingsList.appendChild(item);
         });
-        riskCount.innerText = data.disruptions.length;
+        findingsCount.innerText = data.findings.length;
     }, data.thoughts.length * 1000);
 
-    // Render Mitigation
+    // Render Strategies
     setTimeout(() => {
-        mitigationList.innerHTML = '';
-        data.mitigation_plan.forEach(m => {
+        strategyList.innerHTML = '';
+        data.strategies.forEach(s => {
             const item = document.createElement('div');
             item.className = 'strategy-item';
             item.innerHTML = `
-                <h4>${m.action} <span class="badge" style="background: rgba(0, 242, 255, 0.1); border: 1px solid var(--accent-color)">${m.priority}</span></h4>
-                <p>${m.impact}</p>
+                <h4>${s.recommendation} <span class="badge" style="background: rgba(0, 242, 255, 0.1); border: 1px solid var(--accent-color)">Confidence: ${s.confidence}</span></h4>
+                <p>${s.impact}</p>
             `;
-            mitigationList.appendChild(item);
+            strategyList.appendChild(item);
         });
 
-        // Calculate Stock Health
-        const atRisk = data.inventory.filter(i => i.status !== 'OK').length;
-        stockHealth.innerText = atRisk > 0 ? 'AT RISK' : 'HEALTHY';
-        stockHealth.style.color = atRisk > 0 ? 'var(--danger-color)' : 'var(--success-color)';
+        // Knowledge Hub Status
+        const topicsCount = data.knowledge_hub.length;
+        knowledgeStatus.innerText = topicsCount > 0 ? topicsCount : '--';
+        knowledgeStatus.style.color = 'var(--success-color)';
     }, (data.thoughts.length + 1) * 1000);
 }
 
@@ -139,7 +149,6 @@ async function sendMessage() {
     const msg = chatInput.value.trim();
     if (!msg) return;
 
-    // Render user message
     appendMessage(msg, 'user-msg');
     chatInput.value = '';
 

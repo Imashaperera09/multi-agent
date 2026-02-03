@@ -5,35 +5,32 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Mock Inventory Database
-MOCK_INVENTORY = [
-    {"product": "Semiconductors", "stock_level": 500, "reorder_point": 1000, "status": "At Risk"},
-    {"product": "Lithium Batteries", "stock_level": 2000, "reorder_point": 500, "status": "OK"},
-    {"product": "Steel Coils", "stock_level": 50, "reorder_point": 200, "status": "Out of Stock"},
-    {"product": "Plastic Pellets", "stock_level": 5000, "reorder_point": 1000, "status": "OK"},
+# Mock Knowledge Base
+KNOWLEDGE_BASE = [
+    {"topic": "Artificial Intelligence", "depth_score": 85, "status": "Comprehensive"},
+    {"topic": "Quantum Computing", "depth_score": 30, "status": "Needs Update"},
+    {"topic": "Green Energy", "depth_score": 60, "status": "Under-analyzed"},
+    {"topic": "Space Exploration", "depth_score": 45, "status": "Under-analyzed"},
 ]
 
-def get_inventory_status(query: str = "") -> List[Dict]:
-    """Returns the current inventory status from the internal database."""
+def get_knowledge_context(query: str = "") -> List[Dict]:
+    """Returns the current knowledge context from the internal database."""
     if query:
-        return [item for item in MOCK_INVENTORY if query.lower() in item["product"].lower()]
-    return MOCK_INVENTORY
+        return [item for item in KNOWLEDGE_BASE if query.lower() in item["topic"].lower()]
+    return KNOWLEDGE_BASE
 
-def search_supply_chain_risks(query: str) -> str:
-    """Searches for real-time global supply chain disruptions and risks."""
+def perform_deep_search(query: str) -> str:
+    """Performs a deep web search via Tavily for the given query."""
     tavily_api_key = os.getenv("TAVILY_API_KEY")
     if not tavily_api_key:
-        return "MOCK SEARCH RESULT: Major port strike in Long Beach causing 10-day delays. Geopolitical tensions in the Red Sea affecting shipping routes."
+        print(f"DEBUG: Tavily API key missing. Simulating research for: {query}")
+        # Use Groq to simulate research results if Tavily is missing
+        from langchain_groq import ChatGroq
+        llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.7)
+        sim_prompt = f"Provide 3-5 realistic, detailed search results for the research query: '{query}'. Include titles, descriptions, and mock URLs."
+        res = llm.invoke(sim_prompt)
+        return res.content
     
-    search = TavilySearchResults(k=3)
+    search = TavilySearchResults(k=5)
     results = search.run(query)
     return str(results)
-
-def get_logistics_options(route: str) -> str:
-    """Returns available logistics mitigation strategies for a specific route."""
-    options = {
-        "Red Sea": "Reroute via Cape of Good Hope (+12 days, +$2000/container)",
-        "Long Beach": "Divert to Port of Oakland or use rail from Vancouver",
-        "Suez Canal": "Air freight for critical components, reroute others via South Africa"
-    }
-    return options.get(route, "Standard shipping routes available; consider air freight for urgent needs.")

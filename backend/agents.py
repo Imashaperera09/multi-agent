@@ -1,115 +1,135 @@
 import os
 import datetime
+import json
 from typing import Dict, List
 from langchain_groq import ChatGroq
 from langgraph.graph import StateGraph, END
-from .state import SupplyChainState, AgentThought
-from .tools import search_supply_chain_risks, get_inventory_status, get_logistics_options
+from .state import ResearchState, AgentThought
+from .tools import perform_deep_search, get_knowledge_context
 from dotenv import load_dotenv
 
 load_dotenv()
 
 # Initialize LLM
-llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
+llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.1)
 
-def risk_sentinel(state: SupplyChainState):
-    """Monitors global risks and disruptions."""
-    print("--- RISK SENTINEL ---")
+def research_scout(state: ResearchState):
+    """Performs deep research on the query and extracts findings."""
+    print("--- RESEARCH SCOUT ---")
     
-    query = "current global supply chain disruptions 2024"
-    search_results = search_supply_chain_risks(query)
+    query = state.get("query") or "global research trends"
+    print(f"Searching for: {query}")
+    search_results = perform_deep_search(query)
     
     prompt = f"""
-    You are the Risk Sentinel. Analyze the following search results and identify key supply chain disruptions.
+    You are a Research Scout. Analyze the following search results for the query: "{query}"
+    
     Search Results: {search_results}
     
-    Format your response as a JSON list of disruptions with: type, location, severity, description, source.
-    Also include a 'thought' explaining your reasoning.
+    Extract the top 3 most significant findings. 
+    Return ONLY a JSON list of objects with keys: "id", "category", "title", "description", "source".
+    Example: [{{"id": "1", "category": "Tech", "title": "Example", "description": "Desc", "source": "Source"}}]
     """
     
-    response = llm.invoke(prompt)
-    # In a real app, we'd parse the JSON from response.content
-    # For now, let's mock the extraction logic for simplicity in this demo
-    
+    try:
+        response = llm.invoke(prompt)
+        # Clean response for JSON parsing
+        content = response.content.strip()
+        if "```json" in content:
+            content = content.split("```json")[1].split("```")[0].strip()
+        elif "```" in content:
+            content = content.split("```")[1].split("```")[0].strip()
+        
+        findings = json.loads(content)
+    except Exception as e:
+        print(f"Error parsing findings: {e}")
+        findings = [{"id": "1", "category": "Error", "title": "Search Failed", "description": "Could not parse research results.", "source": "System"}]
+
     thought = AgentThought(
-        agent="Risk Sentinel",
-        thought="Identified major port congestion and geopolitical tensions affecting trade routes.",
+        agent="Research Scout",
+        thought=f"Synthesized research for: {query}. Identified {len(findings)} key trends from web sources.",
         timestamp=str(datetime.datetime.now())
     )
     
-    # Example extracted data
-    disruptions = [
-        {
-            "id": "1",
-            "type": "Geopolitical",
-            "location": "Red Sea",
-            "severity": "High",
-            "description": "Shipping delays due to maritime security alerts.",
-            "source": "Tavily Search"
-        }
-    ]
-    
     return {
         "thoughts": [thought],
-        "disruptions": disruptions,
-        "current_agent": "Risk Sentinel",
-        "next_step": "inventory_analyst"
+        "findings": findings,
+        "current_agent": "Research Scout",
+        "next_step": "critical_analyst"
     }
 
-def inventory_analyst(state: SupplyChainState):
-    """Analyzes inventory health in context of identified risks."""
-    print("--- INVENTORY ANALYST ---")
+def critical_analyst(state: ResearchState):
+    """Analyzes findings against existing knowledge."""
+    print("--- CRITICAL ANALYST ---")
     
-    inventory = get_inventory_status()
+    findings_str = json.dumps(state.get("findings", []))
+    context = get_knowledge_context()
     
     thought = AgentThought(
-        agent="Inventory Analyst",
-        thought=f"Checking stock levels for products likely affected by {state['disruptions'][0]['location']} disruption.",
+        agent="Critical Analyst",
+        thought="Cross-referencing web findings with internal baseline knowledge to validate importance.",
         timestamp=str(datetime.datetime.now())
     )
     
     return {
         "thoughts": [thought],
-        "inventory": inventory,
-        "current_agent": "Inventory Analyst",
-        "next_step": "logistics_optimizer"
+        "knowledge_hub": context,
+        "current_agent": "Critical Analyst",
+        "next_step": "strategy_advisor"
     }
 
-def logistics_optimizer(state: SupplyChainState):
-    """Generates mitigation strategies."""
-    print("--- LOGISTICS OPTIMIZER ---")
+def strategy_advisor(state: ResearchState):
+    """Generates strategic insights based on findings."""
+    print("--- STRATEGY ADVISOR ---")
     
-    risk_location = state['disruptions'][0]['location']
-    options = get_logistics_options(risk_location)
+    findings = state.get("findings", [])
+    findings_str = json.dumps(findings)
     
+    prompt = f"""
+    You are a Strategy Advisor. Based on these research findings:
+    {findings_str}
+    
+    Develop 2 strategic recommendations.
+    Return ONLY a JSON list of objects with keys: "recommendation", "impact", "confidence".
+    Ensure the recommendations are directly related to the findings.
+    """
+    
+    try:
+        response = llm.invoke(prompt)
+        content = response.content.strip()
+        if "```json" in content:
+            content = content.split("```json")[1].split("```")[0].strip()
+        elif "```" in content:
+            content = content.split("```")[1].split("```")[0].strip()
+            
+        strategies = json.loads(content)
+    except Exception as e:
+        print(f"Error parsing strategies: {e}")
+        strategies = [{"recommendation": "Manual Review Required", "impact": "Inconclusive data synthesis.", "confidence": "Low"}]
+
     thought = AgentThought(
-        agent="Logistics Optimizer",
-        thought=f"Developing mitigation plan for {risk_location} disruption using {options}.",
+        agent="Strategy Advisor",
+        thought="Generated strategic roadmap based on synthesized insights. Ready for deployment.",
         timestamp=str(datetime.datetime.now())
     )
     
-    mitigation_plan = [
-        {"action": "Reroute shipments via Cape of Good Hope", "priority": "High", "impact": "Prevents stockouts but increases lead time by 12 days."},
-        {"action": "Expedite semiconductor orders via air freight", "priority": "Medium", "impact": "Reduces lead time for critical parts."}
-    ]
-    
     return {
         "thoughts": [thought],
-        "mitigation_plan": mitigation_plan,
-        "current_agent": "Logistics Optimizer",
+        "strategies": strategies,
+        "current_agent": "Strategy Advisor",
         "next_step": "complete"
     }
 
 # Define the Graph
-workflow = StateGraph(SupplyChainState)
+workflow = StateGraph(ResearchState)
 
-workflow.add_node("risk_sentinel", risk_sentinel)
-workflow.add_node("inventory_analyst", inventory_analyst)
-workflow.add_node("logistics_optimizer", logistics_optimizer)
+workflow.add_node("research_scout", research_scout)
+workflow.add_node("critical_analyst", critical_analyst)
+workflow.add_node("strategy_advisor", strategy_advisor)
 
-workflow.set_entry_point("risk_sentinel")
-workflow.add_edge("risk_sentinel", "inventory_analyst")
-workflow.add_edge("inventory_analyst", "logistics_optimizer")
-workflow.add_edge("logistics_optimizer", END)
+workflow.set_entry_point("research_scout")
+workflow.add_edge("research_scout", "critical_analyst")
+workflow.add_edge("critical_analyst", "strategy_advisor")
+workflow.add_edge("strategy_advisor", END)
 
 app_graph = workflow.compile()
